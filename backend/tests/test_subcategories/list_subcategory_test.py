@@ -14,7 +14,7 @@ class TestListSubCategoryView:
 
         response = client.get(get_url(self.base_url))
 
-        assert list(response.data[0].keys()) == ['id', 'name']
+        assert list(response.data[0].keys()) == ['id', 'name', 'image']
 
     def test_correct_status_code(self, client):
         SubCategoryFactory.create_batch(5)
@@ -39,4 +39,4 @@ class TestListSubCategoryView:
 
         data = response.data[0]
 
-        assert [type(elem) for elem in data.values()] == [int, str]
+        assert [type(elem) for elem in data.values()] == [int, str, str]

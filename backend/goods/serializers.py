@@ -21,9 +21,27 @@ class ListWithTotalGoodsSerializer(serializers.ModelSerializer):
 
 
 class SubCategorySerializer(serializers.ModelSerializer):
+    category = serializers.IntegerField(required=True, write_only=True)
+
     class Meta:
         model = SubCategory
         fields = '__all__'
+
+    def create(self, validated_data):
+        category_id = validated_data.pop('category', None)
+
+        category = Category.objects.get(pk=category_id)
+
+        if not category:
+            raise serializers.ValidationError({'category': ['Данной категории не существует.']})
+
+        sub_category = SubCategory.objects.create(**validated_data)
+
+        category.subcategory.add(sub_category)
+
+        category.save()
+
+        return sub_category
 
 
 class CategorySerializer(ListWithTotalGoodsSerializer):
@@ -70,7 +88,7 @@ class ItemSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ItemCreateSerializer(serializers.ModelSerializer):
+class ItemBaseSerializer(serializers.ModelSerializer):
     characteristic = ItemCharacteristicSerializer(source='itemcharacteristic_set', many=True)
 
     class Meta:
@@ -78,33 +96,43 @@ class ItemCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('id', 'is_active',)
 
+    def save_characteristics(self, item, characteristics):
+        try:
+            for characteristic in characteristics:
+                char_name = characteristic.get('characteristic', None).get('name', None)
+                value = characteristic.get('value', None)
+
+                char, _ = Characteristic.objects.get_or_create(name=char_name)
+
+                ItemCharacteristic.objects.create(item=item, characteristic=char, value=value)
+        except IntegrityError:
+            raise serializers.ValidationError({"characteristics": ['Характеристики не должны повторяться.']})
+
+    def save(self, **kwargs):
+        with transaction.atomic():
+            characteristics = self.validated_data.pop('itemcharacteristic_set', [])
+            item = super().save(**kwargs)
+
+            item.itemcharacteristic_set.all().delete()
+            self.save_characteristics(item, characteristics)
+
+            return item
+
+
+class ItemCreateSerializer(ItemBaseSerializer):
     def create(self, validated_data):
         with transaction.atomic():
             try:
                 characteristicss = validated_data.pop('itemcharacteristic_set', [])
                 item = Item.objects.create(**validated_data)
-
-                for characteristic in characteristicss:
-                    char_name = characteristic.get('characteristic', None).get('name', None)
-                    value = characteristic.get('value', None)
-
-                    char, _ = Characteristic.objects.get_or_create(name=char_name)
-
-                    ItemCharacteristic.objects.create(item=item, characteristic=char, value=value)
+                self.save_characteristics(item, characteristicss)
             except IntegrityError:
                 raise serializers.ValidationError({"characteristics": ['Характеристики не должны повторяться.']})
 
         return item
 
 
-class ItemUpdateSerializer(serializers.ModelSerializer):
-    characteristic = ItemCharacteristicSerializer(source='itemcharacteristic_set', many=True)
-
-    class Meta:
-        model = Item
-        fields = '__all__'
-        read_only_fields = ('id', 'is_active',)
-
+class ItemUpdateSerializer(ItemBaseSerializer):
     def update(self, instance, validated_data):
         with transaction.atomic():
             try:
@@ -112,14 +140,7 @@ class ItemUpdateSerializer(serializers.ModelSerializer):
                 item = super().update(instance, validated_data)
 
                 instance.itemcharacteristic_set.all().delete()
-
-                for characteristic in characteristics:
-                    char_name = characteristic.get('characteristic', None).get('name', None)
-                    value = characteristic.get('value', None)
-
-                    char, _ = Characteristic.objects.get_or_create(name=char_name)
-
-                    ItemCharacteristic.objects.create(item=item, characteristic=char, value=value)
+                self.save_characteristics(item, characteristics)
             except IntegrityError:
                 raise serializers.ValidationError({"characteristics": ['Характеристики не должны повторяться.']})
 

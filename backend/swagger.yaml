@@ -6,7 +6,7 @@ servers:
   - url: http://localhost:8080/api/
     description: Dev server
 paths: 
-  /goods/chars:
+  /goods/characteristics:
     get:
       summary: Get list of characteristics
       tags:
@@ -24,7 +24,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Characteristics"
-  /goods/cat:
+  /goods/categories:
     get:
       summary: Get list of categories
       tags:
@@ -42,7 +42,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Categories"
-  /goods/manufact:
+  /goods/manufactacturers:
     get:
       summary: Get list of manufacturers
       tags:
@@ -60,7 +60,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Manufacturers"
-  /goods/subcat:
+  /goods/sub_categories:
     get:
       summary: Get list of sub categories
       tags:
@@ -72,6 +72,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SubCategories"
+  /goods/sub_categories/create:
+    post:
+      summary: Get list of sub categories
+      tags:
+        - Goods
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubCategoryCreate"
+      responses:
+        '201':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubCategory"
   /goods:
     get:
       summary: Get list of items
@@ -294,13 +312,37 @@ paths:
           description: Order id
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrder"
       responses:
         '200':
           description: Succesful response
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UpdateOrder"
+                $ref: "#/components/schemas/UpdateOrderResponse"
+  /orders/create:
+    post:
+      summary: Create order
+      tags:
+        - Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrder"
+      responses:
+        '200':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateOrderResponse"
 components:
   schemas:
     Manufacturer:
@@ -352,6 +394,27 @@ components:
           maximum: 100
           uniqueItems: true
           nullable: false
+        image:
+          type: string
+          example: image
+    SubCategoryCreate:
+      type: object
+      required:
+        - name
+        - category
+      properties:
+        name:
+          type: string
+          example: name
+          maximum: 100
+          uniqueItems: true
+          nullable: false
+        category:
+          type: integer
+          example: 1
+        image:
+          type: string
+          example: image
     Characteristic:
       type: object
       required:
@@ -719,6 +782,15 @@ components:
           example: Отменен
     UpdateOrder:
       type: object
+      properties:
+        status:
+          type: string
+          enum: [formed, awaiting_payment, paid, confirmed, completed, canceled]
+        receive:
+          type: string
+          example: 2023-01-01T00:00:00.000000Z
+    UpdateOrderResponse:
+      type: object
       required:
         - code
         - user
@@ -738,6 +810,50 @@ components:
           nullable: false
         user:
           $ref: "#/components/schemas/User"
+        goods:
+          $ref: "#/components/schemas/OrderItems"
+        address:
+          type: integer
+          example: 1
+        status:
+          type: string
+          enum: [formed, awaiting_payment, paid, confirmed, completed, canceled]
+        created:
+          type: string
+          example: 2023-01-01T00:00:00.000000Z
+        receive:
+          type: string
+          example: 2023-01-01T00:00:00.000000Z
+        updated:
+          type: string
+          example: 2023-01-01T00:00:00.000000Z
+    CreateOrder:
+      type: object
+      required:
+        - address
+      properties:
+        address:
+          type: integer
+          example: 1
+    CreateOrderResponse:
+      type: object
+      required:
+        - code
+        - user
+        - address
+        - status
+        - created
+        - receive
+      properties:
+        id:
+          type: integer
+          example: 1
+        code:
+          type: string
+          example: code
+          maximum: 40
+          uniqueItems: true
+          nullable: false
         goods:
           $ref: "#/components/schemas/OrderItems"
         address:
@@ -795,3 +911,6 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/Order"
+
+
+

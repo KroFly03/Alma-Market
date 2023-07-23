@@ -1,6 +1,7 @@
 from django.urls import path
 from goods.views import ItemListView, ItemCreateView, ItemDetailView, ItemUpdateView, ItemDeleteView, \
-    CharacteristicListView, GoodPDFView, CategoryListView, ManufacturerListView, SubCategoryListView
+    CharacteristicListView, GoodPDFView, CategoryListView, ManufacturerListView, SubCategoryListView, \
+    SubCategoryCreateView
 
 app_name = 'goods'
 
@@ -28,8 +29,9 @@ urlpatterns = [
     # SubCategories
 
     path('/sub_categories', SubCategoryListView.as_view(), name='list_subcategory'),
+    path('/sub_categories/create', SubCategoryCreateView.as_view(), name='create_subcategory'),
 
     # PDF
 
-    path('/pdf', GoodPDFView.as_view(), name='pdf_list_item')
+    path('/pdf', GoodPDFView.as_view(), name='pdf_list_item'),
 ]

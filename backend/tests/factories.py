@@ -3,7 +3,7 @@ from pytest_factoryboy import register
 
 from goods.models import Item, Characteristic, ItemCharacteristic, Category, Manufacturer, SubCategory
 from orders.models import Address, Order, OrderGoods
-from users.models import User
+from users.models import User, Basket
 
 
 @register
@@ -18,7 +18,6 @@ class SubCategoryFactory(factory.django.DjangoModelFactory):
 class CategoryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Category
-        skip_postgeneration_save = True
 
     name = factory.Sequence(lambda n: f"Category {n}")
 
@@ -52,7 +51,6 @@ class CharacteristicFactory(factory.django.DjangoModelFactory):
 class ItemFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Item
-        skip_postgeneration_save = True
 
     name = factory.Sequence(lambda n: f"Item {n}")
     description = 'description'
@@ -88,13 +86,23 @@ class UserFactory(factory.django.DjangoModelFactory):
     phone = factory.Sequence(lambda n: f"Phone {n}")
     role = 'user'
     is_active = True
+    first_name = factory.Sequence(lambda n: f"First_name {n}")
+    last_name = factory.Sequence(lambda n: f"Last_name {n}")
+
+    @factory.post_generation
+    def with_basket(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        for _ in range(2):
+            item = ItemFactory()
+            Basket.objects.create(user=self, item=item, amount=1)
 
 
 @register
 class OrderFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Order
-        skip_postgeneration_save = True
 
     user = factory.SubFactory(UserFactory)
     address = factory.SubFactory(AddressFactory)

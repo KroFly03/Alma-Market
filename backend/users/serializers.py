@@ -1,20 +1,8 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from goods.models import Item
-from goods.serializers import ItemSerializer
 from users.models import User, Basket
-
-
-class UserSerializer(serializers.ModelSerializer):
-    email = serializers.CharField(read_only=True)
-    is_active = serializers.BooleanField(read_only=True)
-    role = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = User
-        fields = ('id', 'email', 'first_name', 'last_name', 'phone', 'is_active', 'role')
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -29,15 +17,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
         validate_password(password, user)
 
         return attrs
-
-
-class CurrentUserSerializer(serializers.ModelSerializer):
-    email = serializers.CharField(read_only=True)
-    role = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = User
-        fields = ('email', 'first_name', 'last_name', 'phone', 'role')
 
 
 class UserDeleteSerializer(serializers.ModelSerializer):

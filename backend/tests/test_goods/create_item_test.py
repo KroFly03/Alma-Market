@@ -12,7 +12,7 @@ from tests.utils import get_url
 class TestCreateItemView:
     base_url = 'goods:create_item'
 
-    def test_return_correct_data_keys(self, client, login_admin, item, media_root):
+    def test_return_correct_data_keys(self, client, login_admin, item):
         _, admin_access_token = login_admin
 
         data = {
@@ -95,7 +95,7 @@ class TestCreateItemView:
 
         data = response.data
 
-        assert [type(elem) for elem in data.values()] == [int, list, str, str, int, int, NoneType, bool, int, int]
+        assert [type(elem) for elem in data.values()] == [int, list, str, str, int, int, str, bool, int, int]
 
     def test_correct_validation_require_field(self, client, login_admin, item):
         _, admin_access_token = login_admin

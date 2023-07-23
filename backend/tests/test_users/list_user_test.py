@@ -1,23 +1,20 @@
 import math
-from collections import OrderedDict
-from types import NoneType
-
 import pytest
 from rest_framework import status
 
-from paginations import OrderPagination
-from tests.factories import OrderFactory
+from paginations import UserPagination
+from tests.factories import UserFactory
 from tests.utils import get_url
 
 
 @pytest.mark.django_db()
-class TestListOrderView:
-    base_url = 'orders:list_order'
+class TestListUserView:
+    base_url = 'users:users-list'
 
     def test_pagination_keys(self, client, login_admin):
         _, admin_access_token = login_admin
 
-        OrderFactory.create_batch(5)
+        UserFactory.create_batch(5)
 
         response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {admin_access_token}')
 
@@ -26,34 +23,29 @@ class TestListOrderView:
     def test_return_correct_data_keys(self, client, login_admin):
         _, admin_access_token = login_admin
 
-        OrderFactory.create_batch(5)
+        UserFactory.create_batch(5)
 
         response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {admin_access_token}')
 
         data = response.data.get('results', None)[0]
 
-        assert list(data.keys()) == ['id', 'goods', 'user', 'address', 'status', 'code', 'created', 'receive',
-                                     'updated']
-        assert list(data.get('goods', None)[0].keys()) == ['id', 'name', 'price', 'image', 'amount']
-        assert list(data.get('address', None).keys()) == ['id', 'name']
-        assert list(data.get('user', None).keys()) == ['first_name', 'last_name', 'phone', 'role', 'id', 'email']
+        assert list(data.keys()) == ['first_name', 'last_name', 'phone', 'role', 'id', 'email']
 
     def test_correct_status_code(self, client, login_user, login_admin):
         _, user_access_token = login_user
         _, admin_access_token = login_admin
 
-        OrderFactory.create_batch(5)
+        UserFactory.create_batch(5)
 
         response = client.get(get_url(self.base_url))
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json().get('detail') == 'Учетные данные не были предоставлены.'
 
-        response = client.get(get_url(self.base_url),
-                              HTTP_AUTHORIZATION=f'Bearer {user_access_token}')
-
+        response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {user_access_token}')
+        print(response.data)
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.json().get('detail') == 'У вас недостаточно прав для выполнения данного действия.'
+        assert response.json().get('detail') == 'Необходимо быть администратором, чтобы выполнить данное действие.'
 
         response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {admin_access_token}')
 
@@ -62,9 +54,9 @@ class TestListOrderView:
     def test_correct_data_amount(self, client, login_admin):
         _, admin_access_token = login_admin
 
-        amount = 10
+        amount = UserPagination.page_size
 
-        OrderFactory.create_batch(amount)
+        UserFactory.create_batch(amount)
 
         response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {admin_access_token}')
 
@@ -73,68 +65,82 @@ class TestListOrderView:
     def test_correct_data_type(self, client, login_admin):
         _, admin_access_token = login_admin
 
-        OrderFactory.create_batch(5)
+        UserFactory.create_batch(5)
 
         response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {admin_access_token}')
 
         data = response.data.get('results', None)[0]
 
-        assert [type(elem) for elem in data.values()] == [int, list, OrderedDict, OrderedDict, str, str, str, NoneType,
-                                                          str]
+        assert [type(elem) for elem in data.values()] == [str, str, str, str, int, str]
 
     def test_pagination_pages(self, client, login_admin):
         _, admin_access_token = login_admin
 
-        amount = 31
+        amount = 17
 
-        OrderFactory.create_batch(amount)
+        UserFactory.create_batch(amount)
 
         response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {admin_access_token}')
 
         data = response.data
 
-        assert data.get('count', None) == amount
-        assert data.get('total_pages', None) == math.ceil(amount / OrderPagination.page_size)
+        assert data.get('count', None) == amount + 1
+        assert data.get('total_pages', None) == math.ceil(amount / UserPagination.page_size)
 
     def test_pagination_links(self, client, login_admin):
         _, admin_access_token = login_admin
 
-        amount = 31
+        amount = 33
         page = 2
 
-        OrderFactory.create_batch(amount)
+        UserFactory.create_batch(amount)
 
         response = client.get(get_url(self.base_url, page=page),
                               HTTP_AUTHORIZATION=f'Bearer {admin_access_token}')
 
         data = response.data
 
-        assert data.get('links', None) == {'previous': 'http://testserver/api/orders',
-                                           'next': 'http://testserver/api/orders?page=3'}
+        assert data.get('links', None) == {'previous': 'http://testserver/api/users?page=1',
+                                           'next': 'http://testserver/api/users?page=3'}
         assert data.get('current_page', None) == page
 
-    def test_name_filter(self, client, login_admin):
+    def test_first_name_filter(self, client, login_admin):
         _, admin_access_token = login_admin
 
-        orders = OrderFactory.create_batch(10)
+        users = UserFactory.create_batch(10)
 
-        code = orders[0].code
+        first_name = users[0].first_name
 
-        response = client.get(get_url(self.base_url, search=code),
+        response = client.get(get_url(self.base_url, search=first_name),
                               HTTP_AUTHORIZATION=f'Bearer {admin_access_token}')
 
         data = response.data.get('results', None)
 
-        assert data[0].get('code', None) == code
+        assert data[0].get('first_name', None) == first_name
         assert len(data) == 1
 
-    def test_date_ordering(self, client, login_admin):
+    def test_last_name_filter(self, client, login_admin):
         _, admin_access_token = login_admin
 
-        OrderFactory.create_batch(10)
+        users = UserFactory.create_batch(10)
+
+        last_name = users[0].last_name
+
+        response = client.get(get_url(self.base_url, search=last_name),
+                              HTTP_AUTHORIZATION=f'Bearer {admin_access_token}')
+
+        data = response.data.get('results', None)
+
+        assert data[0].get('last_name', None) == last_name
+        assert len(data) == 1
+
+    def test_id_ordering(self, client, login_admin):
+        _, admin_access_token = login_admin
+
+        UserFactory.create_batch(10)
 
         response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {admin_access_token}')
 
         data = response.data.get('results', None)
 
-        assert data[0].get('created', None) > data[::-1][0].get('created', None)
+        assert data[0].get('id', None) < data[::-1][0].get('id', None)
