@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Товары</title>
+    <style>
+        @font-face {
+            font-family: "FreeSans", SansSerif;
+            src: url({{ font }});
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            font-family: "FreeSans";
+        }
+
+        .content {
+            margin: 0 auto;
+        }
+
+        td {
+            height: 50px;
+            text-align: center;
+        }
+
+        tr {
+            height: 25px;
+        }
+    </style>
+</head>
+<body>
+{% load django_template_maths %}
+<div class="content">
+    <div>
+        <p>{% now "SHORT_DATE_FORMAT" %}</p>
+        <h1>Список выбранных товаров:</h1>
+    </div>
+    <table border="1">
+        <tr>
+            <th>Номер</th>
+            <th>Название</th>
+            <th>Цена</th>
+            <th>Количество</th>
+            <th>Стоимость</th>
+        </tr>
+        {% for item in goods %}
+        <tr>
+            <td width="40">{{ item.id }}</td>
+            <td width="250">{{ item.name }}</td>
+            <td width="75">{{ item.price }} руб.</td>
+            <td width="75">{{ item.amount }} шт.</td>
+            <td width="100">{{ item.price | mul:item.amount }} руб.</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <h1>Итого: {{ total_sum }} руб.</h1>
+</div>
+</body>
+</html>

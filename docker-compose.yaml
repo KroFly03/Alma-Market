@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  client:
+    build: ./frontend
+    ports:
+      - '350:350'
+    depends_on:
+      api:
+        condition: service_started
+
+  api:
+    build: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+
+  migrations:
+    build: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    depends_on:
+      db:
+        condition: service_healthy
+    command: python manage.py migrate
+
+  db:
+    image: postgres:15.2
+    ports:
+      - "5656:5432"
+    env_file:
+      - ./backend/.env
+    healthcheck:
+      test: pg_isready -U admin -d alma_market
+      interval: 3s
+      retries: 10
+      timeout: 3s
+    restart: always
+    volumes:
+      - ./data:/var/lib/postgresql/data
+volumes:
+  pgdata:

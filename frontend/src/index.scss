@@ -1,0 +1,60 @@
+@tailwind base;
+
+@layer base {
+  html {
+    overflow-y: scroll;
+  }
+  
+  body {
+    background-color: #F2F3F4;
+  }
+  
+  h1 {
+    @apply text-3xl mb-4;
+  }
+
+  h2 {
+    @apply text-2xl mb-4;
+  }
+
+  h3 {
+    @apply text-xl mb-3;
+  }
+
+  h4 {
+    @apply text-lg mb-3;
+  }
+
+  h5 {
+    @apply text-sm mb-2;
+  }
+
+  h6 {
+    @apply text-xs mb-1;
+  }
+
+  h1, h2 {
+    @apply font-bold;
+  }
+
+  h3, h4, h5, h6 {
+    @apply font-medium;
+  }
+  
+  p {
+    @apply mb-2;
+  }
+  
+  img {
+    @apply object-contain;
+  }
+}
+
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Source+Sans+Pro:wght@600&display=swap');
+
+html {
+  font-family: "Noto Sans", sans-serif;
+}

@@ -1,0 +1,797 @@
+openapi: 3.0.3
+info:
+  title: Swagger Alma Market - OpenAPI
+  version: 0.0.1
+servers:
+  - url: http://localhost:8080/api/
+    description: Dev server
+paths: 
+  /goods/chars:
+    get:
+      summary: Get list of characteristics
+      tags:
+        - Goods
+      parameters:
+        - name: search
+          in: query
+          description: Characteristic name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Characteristics"
+  /goods/cat:
+    get:
+      summary: Get list of categories
+      tags:
+        - Goods
+      parameters:
+        - name: search
+          in: query
+          description: Category name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Categories"
+  /goods/manufact:
+    get:
+      summary: Get list of manufacturers
+      tags:
+        - Goods
+      parameters:
+        - name: search
+          in: query
+          description: Manufacturer name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Manufacturers"
+  /goods/subcat:
+    get:
+      summary: Get list of sub categories
+      tags:
+        - Goods
+      responses:
+        '200':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubCategories"
+  /goods:
+    get:
+      summary: Get list of items
+      tags:
+        - Goods
+      parameters:
+        - name: search
+          in: query
+          description: Item name
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Item category
+          schema:
+            type: integer
+        - name: manufacturer
+          in: query
+          description: Item manufacturer
+          schema:
+            type: integer
+        - name: sub_category
+          in: query
+          description: Item sub category
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: price_min
+          in: query
+          description: Item minimum price
+          schema:
+            type: integer
+        - name: price_max
+          in: query
+          description: Item maximum price
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goods"
+  /goods/{pk}:
+    get:
+      summary: Get item by id
+      tags:
+        - Goods
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          description: Item id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+  /goods/{pk}/delete:
+    patch:
+      summary: Mark item as inactive
+      tags:
+        - Goods
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          description: Item id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteItem"
+  /goods/pdf:
+    post:
+      summary: Create pdf file of selected items in basket
+      tags:
+        - Goods
+      requestBody:
+        required: true
+        content:
+          application/pdf:
+            schema:
+                $ref: "#/components/schemas/PDFItems"
+      responses:
+        '201':
+          description: Succesful response
+          content:
+            application/pdf: {}
+  /goods/create:
+    post:
+      summary: Create item
+      tags:
+        - Goods
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateItem"
+      responses:
+        '201':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemChangeResponse"
+  /goods/update:
+    patch:
+      summary: Update item
+      tags:
+        - Goods
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateItem"
+      responses:
+        '200':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemChangeResponse"
+  /orders/address:
+      get:
+        summary: Get list of addresses
+        tags:
+          - Orders
+        parameters:
+        - name: search
+          in: query
+          description: Address name
+          schema:
+            type: string
+        responses:
+          '200':
+            description: Succesful response
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Addresses"
+  /orders:
+      get:
+        summary: Get list of orders
+        tags:
+          - Orders
+        parameters:
+        - name: search
+          in: query
+          description: Order code
+          schema:
+            type: string
+        responses:
+          '200':
+            description: Succesful response
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Orders"
+
+  /orders/{pk}:
+    get:
+      summary: Get order by id
+      tags:
+        - Orders
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          description: Order id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+  /orders/{pk}/delete:
+    patch:
+      summary: Mark order as canceled
+      tags:
+        - Orders
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          description: Order id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteOrder"
+  /orders/{pk}/update:
+    patch:
+      summary: Update order
+      tags:
+        - Orders
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          description: Order id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateOrder"
+components:
+  schemas:
+    Manufacturer:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+          maximum: 100
+          uniqueItems: true
+          nullable: false
+        total_goods:
+          type: integer
+    Category:
+      type: object
+      required:
+        - name
+        - subcategory
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+          maximum: 100
+          uniqueItems: true
+          nullable: false
+        total_goods:
+          type: integer
+        subcategory:
+          $ref: '#/components/schemas/SubCategories'
+    SubCategory:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+          maximum: 100
+          uniqueItems: true
+          nullable: false
+    Characteristic:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+          maximum: 100
+          uniqueItems: true
+          nullable: false
+    ItemCharacteristic:
+      type: object
+      required:
+        - name
+        - value
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+          maximum: 100
+          uniqueItems: true
+          nullable: false
+        value:
+          type: string
+          example: value
+          maximum: 100
+          nullable: false
+    ItemCharacteristicCreate:
+      type: object
+      required:
+        - name
+        - value
+      properties:
+        name:
+          type: string
+          example: name
+          maximum: 100
+          uniqueItems: true
+          nullable: false
+        value:
+          type: string
+          example: value
+          maximum: 100
+          nullable: false
+    ItemCharacteristicUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: name
+          maximum: 100
+          uniqueItems: true
+          nullable: false
+        value:
+          type: string
+          example: value
+          maximum: 100
+          nullable: false
+    DeleteItem:
+      type: object
+      properties:
+        is_active:
+          type: boolean
+          example: false
+    CreateItem:
+      type: object
+      required:
+        - name
+        - description
+        - price
+        - amount
+        - characteristic
+        - category
+        - manufacturer
+      properties:
+        name:
+          type: string
+          example: name
+          maximum: 100
+          nullable: false
+        description:
+          type: string
+          example: description
+          maximum: 1000
+          nullable: false
+        price:
+          type: integer
+          example: 1000
+        amount:
+          type: integer
+          example: 1
+        image:
+          type: string
+          example: image
+          nullable: true
+        characteristic:
+            $ref: "#/components/schemas/ItemCharacteristicCreate"
+        category:
+          type: integer
+          example: 1
+          nullable: false
+        manufacturer:
+          type: integer
+          example: 1
+          nullable: false
+    UpdateItem:
+      type: object
+      properties:
+        name:
+          type: string
+          example: name
+          maximum: 100
+          nullable: false
+        description:
+          type: string
+          example: description
+          maximum: 1000
+          nullable: false
+        price:
+          type: integer
+          example: 1000
+        amount:
+          type: integer
+          example: 1
+        image:
+          type: string
+          example: image
+          nullable: true
+        characteristic:
+            $ref: "#/components/schemas/ItemCharacteristicUpdate"
+        category:
+          type: integer
+          example: 1
+          nullable: false
+        manufacturer:
+          type: integer
+          example: 1
+          nullable: false
+    PDFItem:
+      type: object
+      required:
+        - id
+        - name
+        - price
+        - amount
+      properties:
+        id:
+          type: integer
+          example: 1
+          nullable: false
+        name:
+          type: string
+          example: name
+          maximum: 100
+          uniqueItems: true
+          nullable: false
+        price:
+          type: integer
+          example: 1000
+          nullable: false
+        amount:
+          type: integer
+          example: 1
+          nullable: false
+
+    Item:
+      type: object
+      required:
+        - name
+        - description
+        - price
+        - amount
+        - characteristic
+        - category
+        - manufacturer
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+        description:
+          type: string
+          example: description
+        price:
+          type: integer
+          example: 1000
+        amount:
+          type: integer
+          example: 1
+        image:
+          type: string
+          example: image
+        characteristic:
+          $ref: "#/components/schemas/ItemCharacteristics"
+        is_active:
+          type: boolean
+          example: true
+        category:
+          $ref: '#/components/schemas/Category'
+        manufacturer:
+          $ref: '#/components/schemas/Manufacturer'
+    ItemChangeResponse:
+      type: object
+      required:
+        - name
+        - description
+        - price
+        - amount
+        - characteristic
+        - category
+        - manufacturer
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+        description:
+          type: string
+          example: description
+        price:
+          type: integer
+          example: 1000
+        amount:
+          type: integer
+          example: 1
+        image:
+          type: string
+          example: image
+        characteristic:
+          $ref: "#/components/schemas/ItemCharacteristics"
+        is_active:
+          type: boolean
+          example: true
+        category:
+          type: integer
+          example: 1
+        manufacturer:
+          type: integer
+          example: 1
+    Address:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+          maximum: 100
+          uniqueItems: true
+          nullable: false
+    User:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - phone
+        - email
+      properties:
+        id:
+          type: integer
+          example: 1
+        first_name:
+          type: string
+          example: first_name
+          maximum: 30
+          nullable: false
+        last_name:
+          type: string
+          example: first_name
+          maximum: 30
+          nullable: false
+        phone:
+          type: string
+          example: 89876543210
+          nullable: false
+        role:
+          type: string
+          enum: [user, admin]
+        email:
+          type: string
+          example: example@mail.ru
+          uniqueItems: true
+    OrderItem:
+      type: object
+      required:
+        - name
+        - price
+        - image
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: name
+          maximum: 100
+          uniqueItems: true
+          nullable: false
+        price:
+          type: integer
+          example: 1000
+        amount:
+          type: integer
+          example: 1
+        image:
+          type: string
+          example: image
+    Order:
+      type: object
+      required:
+        - code
+        - user
+        - address
+        - status
+        - created
+        - receive
+      properties:
+        id:
+          type: integer
+          example: 1
+        code:
+          type: string
+          example: code
+          maximum: 40
+          uniqueItems: true
+          nullable: false
+        user:
+          $ref: "#/components/schemas/User"
+        goods:
+          $ref: "#/components/schemas/OrderItems"
+        address:
+          $ref: "#/components/schemas/Address"
+        status:
+          type: string
+          enum: [formed, awaiting_payment, paid, confirmed, completed, canceled]
+        created:
+          type: string
+          example: 2023-01-01T00:00:00.000000Z
+        receive:
+          type: string
+          example: 2023-01-01T00:00:00.000000Z
+          nullable: true
+        updated:
+          type: string
+          example: 2023-01-01T00:00:00.000000Z
+    DeleteOrder:
+      type: object
+      properties:
+        status:
+          type: string
+          example: Отменен
+    UpdateOrder:
+      type: object
+      required:
+        - code
+        - user
+        - address
+        - status
+        - created
+        - receive
+      properties:
+        id:
+          type: integer
+          example: 1
+        code:
+          type: string
+          example: code
+          maximum: 40
+          uniqueItems: true
+          nullable: false
+        user:
+          $ref: "#/components/schemas/User"
+        goods:
+          $ref: "#/components/schemas/OrderItems"
+        address:
+          type: integer
+          example: 1
+        status:
+          type: string
+          enum: [formed, awaiting_payment, paid, confirmed, completed, canceled]
+        created:
+          type: string
+          example: 2023-01-01T00:00:00.000000Z
+        receive:
+          type: string
+          example: 2023-01-01T00:00:00.000000Z
+        updated:
+          type: string
+          example: 2023-01-01T00:00:00.000000Z
+    Manufacturers:
+      type: array
+      items:
+        $ref: "#/components/schemas/Manufacturer"
+    Categories:
+      type: array
+      items:
+        $ref: "#/components/schemas/Category"
+    SubCategories:
+      type: array
+      items:
+        $ref: "#/components/schemas/SubCategory"
+    Characteristics:
+      type: array
+      items:
+        $ref: "#/components/schemas/Characteristic"
+    ItemCharacteristics:
+      type: array
+      items:
+        $ref: "#/components/schemas/ItemCharacteristic"
+    PDFItems:
+      type: array
+      items:
+        $ref: "#/components/schemas/PDFItem"
+    Goods:
+      type: array
+      items:
+        $ref: "#/components/schemas/Item"
+    Addresses:
+      type: array
+      items:
+        $ref: "#/components/schemas/Address"
+    OrderItems:
+      type: array
+      items:
+        $ref: "#/components/schemas/OrderItem"
+    Orders:
+      type: array
+      items:
+        $ref: "#/components/schemas/Order"
