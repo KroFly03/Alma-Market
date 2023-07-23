@@ -25,7 +25,7 @@
                     </li>
                 </ul>
                 <router-link
-                    v-if="goodsItem.characteristics.length > previewCharacteristics.length"
+                    v-if="goodsItem.characteristic.length > previewCharacteristics.length"
                     class="goods-item__more-characteristic"
                     :to="{ params: { tab: 'characteristics' } }"
                     @click="scrollToTabs"
@@ -60,7 +60,9 @@
         </v-modal>
 
         <div class="mb-6 rounded-md bg-white p-4 shadow-md">
-            <v-tabs ref="tabsRef" class="mb-3">
+<!--          ref on div because chrome not scroll (with scroll margin) to element with overflow auto -->
+          <div ref="tabsRef">
+            <v-tabs  class="mb-3">
                 <v-tab
                     v-for="tabItem in tabs"
                     :key="tabItem.value"
@@ -69,6 +71,7 @@
                     {{ tabItem.name }}
                 </v-tab>
             </v-tabs>
+          </div>
             <v-content-views :value="tab">
                 <v-content-view value="">
                     {{ goodsItem.description ?? "Описание отсутствует." }}
@@ -77,7 +80,7 @@
                     <div>
                         <ul class="goods-item__characteristics-list">
                             <li
-                                v-for="(characteristic, idx) in goodsItem.characteristics"
+                                v-for="(characteristic, idx) in goodsItem.characteristic"
                                 :key="idx"
                                 class="w-100 goods-item__characteristics-item p-2"
                             >
@@ -128,7 +131,7 @@ onMounted(async () => {
 });
 
 const previewCharacteristics = computed(() => {
-    return goodsItem.value.characteristics.slice(0, 6);
+    return goodsItem.value.characteristic.slice(0, 6);
 });
 
 const { addToCart, inCart } = useCartStore();
@@ -146,8 +149,9 @@ const tabs = [
 
 const tabsRef = ref(null);
 const scrollToTabs = () => {
+  console.log(tabsRef.value.$el);
     setTimeout(() => {
-        tabsRef.value.$el.scrollIntoView({ behavior: "smooth" });
+        tabsRef.value.scrollIntoView({ behavior: "smooth" });
     });
 };
 </script>
