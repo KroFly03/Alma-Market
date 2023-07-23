@@ -149,7 +149,6 @@ const tabs = [
 
 const tabsRef = ref(null);
 const scrollToTabs = () => {
-  console.log(tabsRef.value.$el);
     setTimeout(() => {
         tabsRef.value.scrollIntoView({ behavior: "smooth" });
     });
@@ -158,8 +157,6 @@ const scrollToTabs = () => {
 
 <style lang="scss">
 .goods-item {
-    @apply w-full;
-
     &__characteristics {
         &-list {
             width: 100%;

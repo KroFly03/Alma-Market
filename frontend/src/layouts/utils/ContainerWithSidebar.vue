@@ -1,5 +1,5 @@
 <template>
-    <div class="h-100 flex w-full sm:flex-col">
+    <div class="h-full flex sm:flex-col">
         <div class="mr-10 w-3/12 sm:mb-4 sm:mr-0 sm:w-full">
             <h3 v-if="title">{{ title }}</h3>
             <template v-if="!isMobile">
