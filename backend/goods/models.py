@@ -27,6 +27,8 @@ class Manufacturer(ModelWithName):
 
 
 class SubCategory(ModelWithName):
+    image = models.ImageField(verbose_name='Изображение', upload_to='images/', default='images/default_image.png')
+
     class Meta:
         verbose_name = 'Подкатегория'
         verbose_name_plural = 'Подкатегории'

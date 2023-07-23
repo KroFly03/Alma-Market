@@ -21,9 +21,27 @@ class ListWithTotalGoodsSerializer(serializers.ModelSerializer):
 
 
 class SubCategorySerializer(serializers.ModelSerializer):
+    category = serializers.IntegerField(required=True, write_only=True)
+
     class Meta:
         model = SubCategory
         fields = '__all__'
+
+    def create(self, validated_data):
+        category_id = validated_data.pop('category', None)
+
+        category = Category.objects.get(pk=category_id)
+
+        if not category:
+            raise serializers.ValidationError({'category': ['Данной категории не существует.']})
+
+        sub_category = SubCategory.objects.create(**validated_data)
+
+        category.subcategory.add(sub_category)
+
+        category.save()
+
+        return sub_category
 
 
 class CategorySerializer(ListWithTotalGoodsSerializer):

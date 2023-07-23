@@ -17,7 +17,7 @@ class TestListCategoryView:
         data = response.data[0]
 
         assert list(data.keys()) == ['id', 'total_goods', 'subcategory', 'name']
-        assert list(data.get('subcategory')[0].keys()) == ['id', 'name']
+        assert list(data.get('subcategory')[0].keys()) == ['id', 'name', 'image']
 
     def test_correct_status_code(self, client):
         CategoryFactory.create_batch(5)

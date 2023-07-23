@@ -17,6 +17,12 @@ class SubCategoryListView(generics.ListAPIView):
     authentication_classes = []
 
 
+class SubCategoryCreateView(generics.CreateAPIView):
+    queryset = SubCategory.objects.all()
+    serializer_class = SubCategorySerializer
+    permission_classes = [IsAuthenticated, AdminRequired]
+
+
 class CharacteristicListView(generics.ListAPIView):
     queryset = Characteristic.objects.all()
     serializer_class = CharacteristicSerializer
