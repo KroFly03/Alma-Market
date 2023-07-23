@@ -12,7 +12,7 @@ from tests.utils import get_url
 class TestCreateItemView:
     base_url = 'goods:create_item'
 
-    def test_return_correct_data_keys(self, client, login_admin, item, media_root):
+    def test_return_correct_data_keys(self, client, login_admin, item):
         _, admin_access_token = login_admin
 
         data = {

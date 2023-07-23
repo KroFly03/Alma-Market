@@ -86,6 +86,8 @@ class UserFactory(factory.django.DjangoModelFactory):
     phone = factory.Sequence(lambda n: f"Phone {n}")
     role = 'user'
     is_active = True
+    first_name = factory.Sequence(lambda n: f"First_name {n}")
+    last_name = factory.Sequence(lambda n: f"Last_name {n}")
 
     @factory.post_generation
     def with_basket(self, create, extracted, **kwargs):

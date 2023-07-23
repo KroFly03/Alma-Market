@@ -1,13 +1,12 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, filters
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from goods.filters import ItemFilter
 from goods.models import Item, Characteristic, Manufacturer, Category, SubCategory
 from goods.serializers import SubCategorySerializer, CharacteristicSerializer, CategorySerializer, \
     ManufacturerSerializer, ItemSerializer, ItemCreateSerializer, ItemUpdateSerializer, ItemDeleteSerializer, \
     ItemPDFSerializer
-from permissions import AdminRequired
 from paginations import GoodPagination
 
 
@@ -20,7 +19,7 @@ class SubCategoryListView(generics.ListAPIView):
 class SubCategoryCreateView(generics.CreateAPIView):
     queryset = SubCategory.objects.all()
     serializer_class = SubCategorySerializer
-    permission_classes = [IsAuthenticated, AdminRequired]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
 
 class CharacteristicListView(generics.ListAPIView):
@@ -67,20 +66,20 @@ class ItemDetailView(generics.RetrieveAPIView):
 class ItemCreateView(generics.CreateAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemCreateSerializer
-    permission_classes = [IsAuthenticated, AdminRequired]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
 
 class ItemUpdateView(generics.UpdateAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemUpdateSerializer
-    permission_classes = [IsAuthenticated, AdminRequired]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     http_method_names = ['patch']
 
 
 class ItemDeleteView(generics.UpdateAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemDeleteSerializer
-    permission_classes = [IsAuthenticated, AdminRequired]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     http_method_names = ['patch']
 
 

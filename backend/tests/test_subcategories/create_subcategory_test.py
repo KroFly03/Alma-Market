@@ -12,7 +12,7 @@ from tests.utils import get_url
 class TestCreateSubCategoryView:
     base_url = 'goods:create_subcategory'
 
-    def test_return_correct_data_keys(self, client, login_admin, category, media_root):
+    def test_return_correct_data_keys(self, client, login_admin, category):
         _, admin_access_token = login_admin
 
         data = {

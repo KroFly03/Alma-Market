@@ -1,25 +1,30 @@
-from django.http import JsonResponse, Http404
-from drf_yasg.utils import swagger_auto_schema
-from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView, UpdateAPIView, CreateAPIView, DestroyAPIView
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+
 from paginations import UserPagination
 from djoser.views import UserViewSet
-from users.filters import UserFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+
+from permissions import AdminRequired
 from users.models import Basket
 from users.serializers import UserDeleteSerializer, UserBasketCreateSerializer, \
     UserBasketReadSerializer, UserBasketUpdateSerializer
 
 
 class CustomUserViewSet(UserViewSet):
-    pagination_class = None
-    filterset_class = UserFilter
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    ordering = ['id']
+    search_fields = ['first_name', 'last_name']
+    pagination_class = UserPagination
     http_method_names = ['get', 'post', 'patch']
+    default_permission_class = [IsAuthenticated]
+    permissions = {
+        'list': [IsAuthenticated, IsAdminUser],
+    }
 
-    def get_queryset(self):
-        if self.action == 'list':
-            self.pagination_class = UserPagination
-
-        return super().get_queryset()
+    def get_permissions(self):
+        return [permissions() for permissions in self.permissions.get(self.action, self.default_permission_class)]
 
     def get_serializer_class(self):
         if self.action == 'partial_update':
@@ -27,41 +32,10 @@ class CustomUserViewSet(UserViewSet):
 
         return super().get_serializer_class()
 
-    @swagger_auto_schema(
-        operation_description="Returns list of users.")
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-    @swagger_auto_schema(
-        operation_description="Create user.")
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    @swagger_auto_schema(
-        operation_description="Returns user information.")
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-    @swagger_auto_schema(
-        operation_description="Makes user unactive.")
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-
-    @swagger_auto_schema(method='get', operation_description="Returns current user")
-    @swagger_auto_schema(method='patch', operation_description="Edit current user profile.")
-    @action(["get", "put", "patch", "delete"], detail=False)
-    def me(self, request, *args, **kwargs):
-        return super().me(request, *args, **kwargs)
-
 
 class UserBasketCreateView(CreateAPIView):
     queryset = Basket.objects.all()
     serializer_class = UserBasketCreateSerializer
-
-    @swagger_auto_schema(
-        operation_description="Create new item in user basket.")
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -84,11 +58,6 @@ class UserBasketListView(ListAPIView):
 
         return queryset
 
-    @swagger_auto_schema(
-        operation_description="Returns list of user basket goods.")
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
 
 class UserBasketUpdateView(UpdateAPIView):
     serializer_class = UserBasketUpdateSerializer
@@ -97,14 +66,6 @@ class UserBasketUpdateView(UpdateAPIView):
 
     def get_queryset(self):
         return Basket.objects.filter(user=self.request.user.pk).all()
-
-    @swagger_auto_schema(
-        operation_description="Update amount of item in user basket.")
-    def patch(self, request, *args, **kwargs):
-        try:
-            return super().patch(request, *args, **kwargs)
-        except Http404:
-            return JsonResponse({'item': 'Данный товар в корзине текущуего пользователя не найден'})
 
 
 class UserBasketDestroyView(DestroyAPIView):
@@ -115,11 +76,3 @@ class UserBasketDestroyView(DestroyAPIView):
 
     def get_object(self):
         return super().get_object()
-
-    @swagger_auto_schema(
-        operation_description="Delete item from user basket.")
-    def delete(self, request, *args, **kwargs):
-        try:
-            return super().delete(request, *args, **kwargs)
-        except Http404:
-            return JsonResponse({'item': 'Данный товар в корзине текущуего пользователя не найден'})

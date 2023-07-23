@@ -1,10 +1,9 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from paginations import OrderPagination
-from permissions import AdminRequired
 from orders.models import Order, Address
 from orders.serializers import OrderSerializer, AddressReadSerializer, OrderCreateSerializer, \
     OrderDeleteSerializer, OrderUpdateSerializer
@@ -21,7 +20,7 @@ class AddressListView(ListAPIView):
 class OrderListView(ListAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated, AdminRequired]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     pagination_class = OrderPagination
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     ordering = ['-created']
@@ -31,7 +30,7 @@ class OrderListView(ListAPIView):
 class OrderDetailView(RetrieveAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated, AdminRequired]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
 
 class OrderCreateView(CreateAPIView):
@@ -43,14 +42,14 @@ class OrderCreateView(CreateAPIView):
 class OrderUpdateView(UpdateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderUpdateSerializer
-    permission_classes = [IsAuthenticated, AdminRequired]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     http_method_names = ['patch']
 
 
 class OrderDeleteView(UpdateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderDeleteSerializer
-    permission_classes = [IsAuthenticated, AdminRequired]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     http_method_names = ['patch']
 
 

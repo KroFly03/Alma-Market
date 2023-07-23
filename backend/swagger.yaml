@@ -72,6 +72,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SubCategories"
+  /goods/sub_categories/create:
+    post:
+      summary: Get list of sub categories
+      tags:
+        - Goods
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubCategoryCreate"
+      responses:
+        '201':
+          description: Succesful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubCategory"
   /goods:
     get:
       summary: Get list of items
@@ -376,6 +394,27 @@ components:
           maximum: 100
           uniqueItems: true
           nullable: false
+        image:
+          type: string
+          example: image
+    SubCategoryCreate:
+      type: object
+      required:
+        - name
+        - category
+      properties:
+        name:
+          type: string
+          example: name
+          maximum: 100
+          uniqueItems: true
+          nullable: false
+        category:
+          type: integer
+          example: 1
+        image:
+          type: string
+          example: image
     Characteristic:
       type: object
       required:
@@ -872,3 +911,6 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/Order"
+
+
+
