@@ -88,7 +88,7 @@ class TestUpdateItemView:
         _, admin_access_token = login_admin
 
         receive = (datetime.datetime.now() + datetime.timedelta(days=1)).isoformat()
-        status = Order.Status.AWAITING_PAYMENT
+        status = Order.Status.COMPLETED
 
         data = {
             'receive': receive,

@@ -59,7 +59,7 @@ class TestListItemView:
         data = response.data.get('results', None)[0]
 
         assert [type(elem) for elem in data.values()] == [int, list, OrderedDict, OrderedDict, str, str, int, int,
-                                                          NoneType, bool]
+                                                          str, bool]
 
     def test_pagination_pages(self, client):
         amount = 46

@@ -80,7 +80,7 @@ class TestUpdateItemView:
 
         data = response.data
 
-        assert [type(elem) for elem in data.values()] == [int, list, str, str, int, int, NoneType, bool, int, int]
+        assert [type(elem) for elem in data.values()] == [int, list, str, str, int, int, str, bool, int, int]
 
     def test_correct_validation_unique_name(self, client, login_admin, item):
         _, admin_access_token = login_admin

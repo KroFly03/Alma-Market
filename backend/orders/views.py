@@ -54,10 +54,8 @@ class OrderDeleteView(UpdateAPIView):
     http_method_names = ['patch']
 
 
-class UserOrderListView(ListAPIView):
-    serializer_class = OrderSerializer
+class UserOrderListView(OrderListView):
     permission_classes = [IsAuthenticated]
-    pagination_class = OrderPagination
 
     def get_queryset(self):
         return Order.objects.filter(user__pk=self.request.user)

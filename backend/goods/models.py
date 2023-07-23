@@ -47,7 +47,7 @@ class Item(ModelWithName):
     description = models.TextField(verbose_name='Описание', max_length=1000)
     price = models.PositiveIntegerField(verbose_name='Цена', )
     amount = models.PositiveSmallIntegerField(verbose_name='Количество', )
-    image = models.ImageField(verbose_name='Изображение', upload_to='images/', null=True)
+    image = models.ImageField(verbose_name='Изображение', upload_to='images/', default='images/default_image.png')
     characteristic = models.ManyToManyField(Characteristic, verbose_name='Характеристики', through='ItemCharacteristic')
     is_active = models.BooleanField(verbose_name='Статус', default=True)
     category = models.ForeignKey(Category, verbose_name='Категория', on_delete=models.CASCADE)

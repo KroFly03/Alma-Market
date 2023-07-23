@@ -38,7 +38,7 @@ class TestDetailItemView:
         data = response.data
 
         assert [type(elem) for elem in data.values()] == [int, list, OrderedDict, OrderedDict, str, str, int, int,
-                                                          NoneType, bool]
+                                                          str, bool]
 
     def test_correct_detail_item(self, client, item):
         response = client.get(get_url(self.base_url, item.id))

@@ -1,6 +1,4 @@
-from datetime import timedelta
 from django.db import models
-from django.utils import timezone
 from django.utils.crypto import get_random_string
 
 from goods.models import Item
@@ -8,7 +6,7 @@ from users.models import User
 
 
 class Address(models.Model):
-    name = models.CharField(verbose_name='Название', max_length=100, unique=True)
+    name = models.CharField(verbose_name='Название', max_length=150, unique=True)
 
     def __str__(self):
         return self.name
@@ -21,9 +19,6 @@ class Address(models.Model):
 class Order(models.Model):
     class Status(models.TextChoices):
         FORMED = 'formed', 'Сформирован'
-        AWAITING_PAYMENT = 'awaiting_payment', 'Ожидает оплату'
-        PAID = 'paid', 'Оплачен'
-        CONFIRMED = 'confirmed', 'Подтвержден'
         COMPLETED = 'completed', 'Выполнен'
         CANCELED = 'canceled', 'Отменен'
 
