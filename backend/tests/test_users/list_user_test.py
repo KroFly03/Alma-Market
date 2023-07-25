@@ -1,4 +1,6 @@
 import math
+from types import NoneType
+
 import pytest
 from rest_framework import status
 
@@ -29,7 +31,8 @@ class TestListUserView:
 
         data = response.data.get('results', None)[0]
 
-        assert list(data.keys()) == ['first_name', 'last_name', 'phone', 'role', 'id', 'email']
+        assert list(data.keys()) == ['id', 'last_login', 'email', 'first_name', 'last_name', 'phone', 'role',
+                                     'is_active']
 
     def test_correct_status_code(self, client, login_user, login_admin):
         _, user_access_token = login_user
@@ -41,9 +44,9 @@ class TestListUserView:
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json().get('detail') == 'Учетные данные не были предоставлены.'
-
+        print(user_access_token)
         response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {user_access_token}')
-        print(response.data)
+
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json().get('detail') == 'Необходимо быть администратором, чтобы выполнить данное действие.'
 
@@ -71,7 +74,7 @@ class TestListUserView:
 
         data = response.data.get('results', None)[0]
 
-        assert [type(elem) for elem in data.values()] == [str, str, str, str, int, str]
+        assert [type(elem) for elem in data.values()] == [int, NoneType, str, str, str, str, str, bool]
 
     def test_pagination_pages(self, client, login_admin):
         _, admin_access_token = login_admin

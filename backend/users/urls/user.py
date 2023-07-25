@@ -5,8 +5,6 @@ app_name = 'users'
 
 router = CustomRouter(trailing_slash=False)
 
-router.register('', CustomUserViewSet, basename="users")
+router.register('users', CustomUserViewSet, basename='users')
 
 urlpatterns = router.urls
-
-print(urlpatterns)

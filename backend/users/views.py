@@ -1,15 +1,13 @@
 from rest_framework.generics import ListAPIView, UpdateAPIView, CreateAPIView, DestroyAPIView
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 
 from paginations import UserPagination
 from djoser.views import UserViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
-from permissions import AdminRequired
 from users.models import Basket
-from users.serializers import UserDeleteSerializer, UserBasketCreateSerializer, \
-    UserBasketReadSerializer, UserBasketUpdateSerializer
+from users.serializers import BasketSerializer, UserBasketUpdateSerializer, BasketCreateSerializer
 
 
 class CustomUserViewSet(UserViewSet):
@@ -21,42 +19,25 @@ class CustomUserViewSet(UserViewSet):
     default_permission_class = [IsAuthenticated]
     permissions = {
         'list': [IsAuthenticated, IsAdminUser],
+        'create': [AllowAny]
     }
 
     def get_permissions(self):
         return [permissions() for permissions in self.permissions.get(self.action, self.default_permission_class)]
 
-    def get_serializer_class(self):
-        if self.action == 'partial_update':
-            return UserDeleteSerializer
-
-        return super().get_serializer_class()
-
 
 class UserBasketCreateView(CreateAPIView):
     queryset = Basket.objects.all()
-    serializer_class = UserBasketCreateSerializer
-
-    def perform_create(self, serializer):
-        user = self.request.user
-        serializer.save(user=user)
+    serializer_class = BasketCreateSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class UserBasketListView(ListAPIView):
-    serializer_class = UserBasketReadSerializer
-    pagination_class = None
+    serializer_class = BasketSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Basket.objects.all()
-
-        user = self.request.user.pk
-
-        if user:
-            queryset = queryset.filter(user__pk=user).order_by('id')
-        else:
-            queryset = None
-
-        return queryset
+        return Basket.objects.filter(user__pk=self.request.user.pk)
 
 
 class UserBasketUpdateView(UpdateAPIView):
@@ -65,7 +46,7 @@ class UserBasketUpdateView(UpdateAPIView):
     lookup_field = 'item_id'
 
     def get_queryset(self):
-        return Basket.objects.filter(user=self.request.user.pk).all()
+        return Basket.objects.filter(user=self.request.user.pk)
 
 
 class UserBasketDestroyView(DestroyAPIView):
@@ -73,6 +54,3 @@ class UserBasketDestroyView(DestroyAPIView):
 
     def get_queryset(self):
         return Basket.objects.filter(user=self.request.user.pk).all()
-
-    def get_object(self):
-        return super().get_object()
