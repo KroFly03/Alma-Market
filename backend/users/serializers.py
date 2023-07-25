@@ -1,65 +1,73 @@
+from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from goods.models import Item
-from users.models import User, Basket
+from users.models import Basket
+
+USER_MODEL = get_user_model()
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = USER_MODEL
+        exclude = ('password', 'goods')
+        read_only_fields = ('id', 'email', 'role', 'last_login', 'is_active')
+
+
+class PasswordField(serializers.CharField):
+    def __init__(self, **kwargs):
+        kwargs['style'] = {'input_type': 'password'}
+        kwargs.setdefault('write_only', True)
+        super().__init__(**kwargs)
+        self.validators.append(validate_password)
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
+    password = PasswordField(required=True)
+    password_repeat = PasswordField(required=True)
+
     class Meta:
-        model = User
-        fields = ('email', 'password', 'first_name', 'last_name', 'phone')
+        model = USER_MODEL
+        read_only_fields = ('id',)
+        fields = ('id', 'email', 'first_name', 'last_name', 'phone', 'password', 'password_repeat')
 
     def validate(self, attrs):
-        user = User(**attrs)
-        password = attrs.get("password")
-
-        validate_password(password, user)
-
+        if attrs['password'] != attrs['password_repeat']:
+            raise ValidationError({'password': ['Разные пароли.']})
         return attrs
 
-
-class UserDeleteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ()
-
-    def update(self, instance, validated_data):
-        user = instance
-
-        if user == self.context['request'].user:
-            raise serializers.ValidationError({'user': ['Пользователь не может сам себя удалить.']})
-
-        if not user.is_active:
-            raise serializers.ValidationError({'user': ['Данный пользователь уже удален.']})
-
-        user.is_active = False
-        user.save()
-
-        return user
+    def create(self, validated_data):
+        del validated_data['password_repeat']
+        validated_data['password'] = make_password(validated_data['password'])
+        return super().create(validated_data)
 
 
-class UserBasketCreateSerializer(serializers.ModelSerializer):
+class BasketCreateSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = Basket
-        fields = ('item', 'amount')
+        fields = ('item', 'amount', 'user')
 
 
 class BasketItemSerializer(serializers.ModelSerializer):
-    category = serializers.CharField(source='category.name', read_only=True)
-    manufacturer = serializers.CharField(source='manufacturer.name', read_only=True)
+    category = serializers.CharField(source='category.name')
+    manufacturer = serializers.CharField(source='manufacturer.name')
 
     class Meta:
         model = Item
-        fields = ('id', 'name', 'amount', 'price', 'image', 'category', 'manufacturer')
+        exclude = ('amount', 'characteristic', 'description')
 
 
-class UserBasketReadSerializer(serializers.ModelSerializer):
+class BasketSerializer(serializers.ModelSerializer):
     item = BasketItemSerializer()
 
     class Meta:
         model = Basket
-        fields = ('user', 'item', 'amount')
+        fields = ('item', 'amount')
 
 
 class UserBasketUpdateSerializer(serializers.ModelSerializer):

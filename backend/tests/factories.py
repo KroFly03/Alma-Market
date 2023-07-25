@@ -82,7 +82,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
-    email = factory.Sequence(lambda n: f"Email {n}")
+    email = factory.Sequence(lambda n: f"Email{n}@mail.ru")
     phone = factory.Sequence(lambda n: f"Phone {n}")
     role = 'user'
     is_active = True

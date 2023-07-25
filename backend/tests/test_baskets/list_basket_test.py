@@ -8,18 +8,20 @@ from rest_framework import status
 from paginations import GoodPagination
 from tests.factories import ItemFactory
 from tests.utils import get_url
+from users.models import Basket
 
 
 @pytest.mark.django_db()
-class TestListItemView:
-    base_url = 'goods:list_item'
-    
-    def test_pagination_keys(self, client):
-        ItemFactory.create_batch(5)
+class TestListBasketView:
+    base_url = 'baskets:list_basket_item'
 
-        response = client.get(get_url(self.base_url))
+    def test_pagination_keys(self, client, login_user, item):
+        user, user_access_token = login_user
+        Basket.objects.create(user=user, item=item, amount=1)
 
-        assert list(response.data.keys()) == ['links', 'count', 'total_pages', 'current_page', 'results']
+        response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {user_access_token}')
+
+        assert list(response.data[0].keys()) == ['item', 'amount', 'total_pages', 'current_page', 'results']
 
     def test_return_correct_data_keys(self, client):
         ItemFactory.create_batch(5)

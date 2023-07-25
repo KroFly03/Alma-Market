@@ -1,8 +1,9 @@
-from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.core.validators import RegexValidator
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
 
 from goods.models import Item
+from users.managers import UserManager
 
 
 class User(AbstractBaseUser):
@@ -10,15 +11,20 @@ class User(AbstractBaseUser):
         USER = 'user', 'Пользователь'
         ADMIN = 'admin', 'Администратор'
 
+    phone_regex = RegexValidator(
+        regex=r'^\+7\d{10}$',
+        message='Номер телефона должен быть в формате: "+79991234567".'
+    )
+
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
-    phone = PhoneNumberField()
+    phone = models.CharField(validators=[phone_regex])
     role = models.CharField(choices=Roles.choices, max_length=20, default=Roles.USER)
     is_active = models.BooleanField(default=False)
     goods = models.ManyToManyField(Item, through='Basket')
 
-    objects = BaseUserManager()
+    objects = UserManager()
 
     USERNAME_FIELD = 'email'
 

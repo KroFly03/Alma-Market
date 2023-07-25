@@ -40,7 +40,7 @@ class TestUpdateItemView:
                                 HTTP_AUTHORIZATION=f'Bearer {user_access_token}')
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.json().get('detail') == 'Необходимо быть администратором, чтобы выполнить данное действие.'
+        assert response.json().get('detail') == 'У вас недостаточно прав для выполнения данного действия.'
 
         response = client.patch(get_url(self.base_url, order.id),
                                 content_type='application/json', HTTP_AUTHORIZATION=f'Bearer {admin_access_token}')

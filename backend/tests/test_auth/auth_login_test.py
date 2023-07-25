@@ -9,7 +9,7 @@ from tests.utils import get_url
 
 @pytest.mark.django_db()
 class TestAuthLoginView:
-    base_url = 'users:login'
+    base_url = 'auth:login'
 
     def test_return_correct_data_keys(self, client):
         password = 'test'

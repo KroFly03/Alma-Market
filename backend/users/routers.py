@@ -7,7 +7,8 @@ class CustomRouter(DefaultRouter):
         bound_methods = super().get_method_map(viewset, method_map)
 
         for method, action in bound_methods.items():
-            if action not in ['reset_username', 'reset_username_confirm', 'set_username', 'set_password']:
+            if action not in ['reset_username', 'reset_username_confirm', 'set_username', 'set_password', 'retrieve',
+                              'partial_update']:
                 url_map[method] = action
 
         return url_map

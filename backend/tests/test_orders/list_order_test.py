@@ -109,7 +109,7 @@ class TestListOrderView:
 
         data = response.data
 
-        assert data.get('links', None) == {'previous': 'http://testserver/api/orders',
+        assert data.get('links', None) == {'previous': 'http://testserver/api/orders?page=1',
                                            'next': 'http://testserver/api/orders?page=3'}
         assert data.get('current_page', None) == page
 
