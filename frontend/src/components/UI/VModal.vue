@@ -88,7 +88,7 @@ const { isMobile } = useScreen();
 
         .v-modal__content {
             @apply max-w-full #{!important};
-            @apply h-full  rounded-none sm:bottom-0 sm:h-[90%] sm:rounded-t-xl sm:px-4;
+            @apply h-full rounded-none sm:bottom-0 sm:h-[90%] sm:rounded-t-xl sm:px-4;
         }
 
         .v-modal__content-body {
@@ -120,13 +120,12 @@ const { isMobile } = useScreen();
         overflow-hidden 
         rounded-xl 
         bg-white 
-        p-10 pb-0
-        shadow-xl
-        transition-all;
-        //text-left align-middle
+        p-10 shadow-xl
+        transition-all
+        sm:pb-0;
 
         &-body {
-            @apply min-h-full pb-5;
+            @apply min-h-full sm:pb-5;
         }
     }
 

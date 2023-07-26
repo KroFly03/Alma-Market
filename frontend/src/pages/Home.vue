@@ -1,5 +1,5 @@
 <template>
-    <div class="flex w-full justify-between sm:flex-col">
+    <div class="flex h-full sm:flex-col">
         <div class="mr-4 xl:w-3/12 lg:w-4/12 sm:mb-4 sm:mr-0 sm:w-full">
             <div class="rounded-md bg-white p-3 shadow-md">
                 <v-select v-model="selectedCategory" class="mb-3" label="Категория">

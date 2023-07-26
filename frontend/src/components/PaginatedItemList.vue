@@ -42,7 +42,7 @@ const page = computed({
     get: () => props.currentPage,
     set: (newValue) => {
         emit("update:currentPage", newValue);
-        elem.value.scrollIntoView({ behavior: "smooth" });
+        elem.value.scrollIntoView();
     },
 });
 </script>

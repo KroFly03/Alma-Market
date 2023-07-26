@@ -1,7 +1,7 @@
 export default (api) => ({
     login: async ({ email, password }) => {
         return await api
-            .post("auth/token/", {
+            .post("auth/login", {
                 json: { email, password },
             })
             .json();
@@ -12,9 +12,8 @@ export default (api) => ({
     },
 
     register: async ({ phone, email, first_name, last_name, password }) => {
-        console.log(name);
         return await api
-            .post("users/", {
+            .post("users", {
                 json: {
                     email,
                     phone,
@@ -31,12 +30,12 @@ export default (api) => ({
     },
 
     current: async () => {
-        return await api.get("users/me/").json();
+        return await api.get("users/me").json();
     },
 
     update: async ({ first_name, last_name, phone }) => {
         return await api
-            .patch("users/me/", {
+            .patch("users/me", {
                 json: { first_name, last_name, phone },
             })
             .json();

@@ -78,7 +78,7 @@ const props = defineProps({
 
 const colorClasses = computed(() => {
     if (props.variant === "default") return `bg-${props.bgColor} text-${props.textColor}`;
-    // if (props.variant === "tonal") return `text-${props.textColor}`;
+    if (props.variant === "outlined") return `border-${props.bgColor} text-${props.bgColor}`;
 
     return `border-${props.bgColor} text-${props.bgColor}`;
 });

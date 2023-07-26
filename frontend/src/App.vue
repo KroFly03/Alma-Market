@@ -1,13 +1,7 @@
 <template>
-    <div class="wrapper">
-        <router-view></router-view>
-    </div>
+    <router-view></router-view>
 </template>
 
 <script setup></script>
 
-<style lang="scss">
-.wrapper {
-    @apply flex min-h-screen flex-col;
-}
-</style>
+<style lang="scss"></style>
