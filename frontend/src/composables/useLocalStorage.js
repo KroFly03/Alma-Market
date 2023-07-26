@@ -1,19 +1,17 @@
 import { ref, watch } from "vue";
 
-export const useLocalStorage = (localStorageKey, initialValue = null) => {
+export const useLocalStorage = (localStorageKey, initialValue = null, deep = false) => {
     const value = ref(null);
 
     const localStorageItem = localStorage.getItem(localStorageKey);
     if (localStorageItem) value.value = JSON.parse(localStorageItem);
 
     watch(
-        () => value,
+        value,
         (newValue) => {
-            if (newValue.value === null || newValue.value === undefined)
-                localStorage.removeItem(localStorageKey);
-            else localStorage.setItem(localStorageKey, JSON.stringify(newValue.value));
+            localStorage.setItem(localStorageKey, JSON.stringify(newValue));
         },
-        { deep: true }
+        { deep }
     );
 
     if (!localStorageItem) value.value = initialValue;

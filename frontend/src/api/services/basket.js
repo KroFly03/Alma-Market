@@ -1,11 +1,11 @@
 export default (api) => ({
     get: async () => {
-        return await api.get("basket/").json();
+        return await api.get("basket").json();
     },
 
     add: async ({ goodsItemId, amount }) => {
         return await api
-            .post("basket/add/", {
+            .post("basket/add", {
                 json: { item: goodsItemId, amount },
             })
             .json();
@@ -13,13 +13,17 @@ export default (api) => ({
 
     update: async ({ goodsItemId, amount }) => {
         return await api
-            .patch(`basket/${goodsItemId}/update/`, {
+            .patch(`basket/${goodsItemId}/update`, {
                 json: { amount },
             })
             .json();
     },
 
     remove: async ({ goodsItemId }) => {
-        return await api.delete(`basket/${goodsItemId}/delete/`).json();
+        return await api.delete(`basket/${goodsItemId}/delete`).json();
+    },
+
+    getPdf: async (items) => {
+        return await api.post("goods/pdf", { json: items }).blob();
     },
 });

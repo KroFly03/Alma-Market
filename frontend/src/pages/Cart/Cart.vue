@@ -11,38 +11,36 @@
             </div>
 
             <h3 class="mb-2">Самовывоз</h3>
-            <RadioGroup v-model="state.address">
-                <RadioGroupOption
-                    v-for="address in addresses"
-                    :key="address.id"
-                    v-slot="{ checked }"
-                    as="template"
-                    :value="address.id"
-                >
-                    <div
-                        class="cart__address-radio"
-                        :class="checked ? 'cart__address-radio--checked' : ''"
-                    >
-                        <div class="w-[40px]">
-                            <v-icon
-                                v-if="checked"
-                                class="mr-2 text-primary"
-                                :mdi-icon="mdiCheckCircleOutline"
-                            ></v-icon>
-                        </div>
-                        <span>{{ address.name }}</span>
-                    </div>
-                </RadioGroupOption>
-            </RadioGroup>
-            <p v-if="v$.address.$errors.length" class="text-error">
-                {{ v$.address.$errors[0]?.$message }}
-            </p>
 
-            <div class="mt-6 flex items-center justify-between sm:flex-col sm:items-stretch">
-                <span class="text-xl sm:mb-3">
-                    Итого: <strong>{{ formatPrice(cartStore.cartTotalPrice) }}</strong>
-                </span>
-                <v-btn :disabled="!isLoggedIn" @click="onCheckout"> Оформить заказ </v-btn>
+            <yandex-map
+                class="yandex-me"
+                :settings="settings"
+                :zoom="10"
+                :coordinates="[59.938955, 30.315644]"
+            >
+                <yandex-marker
+                    marker-id="vfsafv"
+                    :coordinates="[59.938955, 30.315644]"
+                    marker-type="placemark"
+                >
+                    <template #component> </template>
+                </yandex-marker>
+            </yandex-map>
+
+            <div class="mt-6 flex flex-col items-end">
+                <button
+                    class="mb-2 flex items-center text-sm text-grey hover:underline"
+                    @click="onSaveAsPdf"
+                >
+                    <v-icon :mdi-icon="mdiContentSave"></v-icon>
+                    Сохранить в PDF
+                </button>
+                <div class="flex w-full items-center justify-between sm:flex-col sm:items-stretch">
+                    <span class="text-xl sm:mb-3">
+                        Итого: <strong>{{ formatPrice(cartStore.cartTotalPrice) }}</strong>
+                    </span>
+                    <v-btn :disabled="!isLoggedIn" @click="onCheckout"> Оформить заказ </v-btn>
+                </div>
             </div>
             <div v-if="!isLoggedIn" class="mt-3 rounded-md bg-grey bg-opacity-20 p-4">
                 Для оформления заказа требуется авторизация.
@@ -58,25 +56,26 @@
 <script setup>
 import CartItem from "@/pages/Cart/CartItem.vue";
 import VBtn from "@/components/UI/VBtn.vue";
-import VIcon from "@/components/UI/VIcon.vue";
 import { useCartStore } from "@/stores/cartStore.js";
 import { formatPrice } from "@/utils/formatPrice.js";
-import { onMounted, reactive, ref, toRefs } from "vue";
+import { reactive, toRefs } from "vue";
 import { useAuthStore } from "@/stores/authStore.js";
 import { api } from "@/api/api.js";
 import { useVuelidate } from "@vuelidate/core";
 import { helpers, required } from "@vuelidate/validators";
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
-import { mdiCheckCircleOutline } from "@mdi/js";
+import { mdiCheckCircleOutline, mdiContentSave } from "@mdi/js";
+import { YandexMap, YandexMarker } from "vue-yandex-maps";
+import VIcon from "@/components/UI/VIcon.vue";
 
 const cartStore = useCartStore();
 const { isLoggedIn } = toRefs(useAuthStore());
 
-let addresses = ref([]);
-
-onMounted(async () => {
-    addresses.value = await api.orders.getAddresses();
-});
+// let addresses = ref([]);
+//
+// onMounted(async () => {
+//     addresses.value = await api.orders.getAddresses();
+// });
 
 const state = reactive({ address: null });
 const rules = {
@@ -100,6 +99,30 @@ const onCheckout = async () => {
         console.log("error");
     }
 };
+
+const settings = {
+    apiKey: "633a73aa-5e99-47fc-bdba-0de30b6dfeca",
+    lang: "ru_RU",
+    coordorder: "latlong",
+    enterprise: false,
+    version: "2.1",
+};
+
+const onSaveAsPdf = async () => {
+    const formattedItems = cartStore.cartItems.map(({ item, quantity }) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        amount: quantity,
+    }));
+
+    const blob = await api.basket.getPdf(formattedItems);
+
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = "Basket";
+    link.click();
+};
 </script>
 
 <style lang="scss" scoped>
@@ -120,5 +143,18 @@ const onCheckout = async () => {
             @apply border-primary;
         }
     }
+}
+
+.yandex-me {
+    height: 400px;
+
+    :global(.yandex-balloon) {
+        width: 260px;
+        height: 120px;
+    }
+}
+
+.basfb {
+    @apply break-all;
 }
 </style>

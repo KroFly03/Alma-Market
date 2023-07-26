@@ -3,6 +3,6 @@ export default (api) => ({
         const searchParams = new URLSearchParams({ page });
         if (search) searchParams.append("email", search);
 
-        return await api.get("users/", { searchParams }).json();
+        return await api.get("users", { searchParams }).json();
     },
 });

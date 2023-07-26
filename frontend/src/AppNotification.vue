@@ -33,6 +33,9 @@ const show = (type, title, text, duration = 8000) => {
 
 const onClose = (id) => {
     const index = notifications.value.findIndex((x) => x.id === id);
+
+    if (index === -1) return;
+
     notifications.value.splice(index, 1);
 };
 

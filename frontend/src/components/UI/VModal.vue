@@ -120,10 +120,9 @@ const { isMobile } = useScreen();
         overflow-hidden 
         rounded-xl 
         bg-white 
-        p-10 sm:pb-0
-        shadow-xl
-        transition-all;
-        //text-left align-middle
+        p-10 shadow-xl
+        transition-all
+        sm:pb-0;
 
         &-body {
             @apply min-h-full sm:pb-5;

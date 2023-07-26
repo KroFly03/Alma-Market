@@ -3,7 +3,7 @@ import { watch } from "vue";
 export const useWatchDebounce = (watchObj, callback, { delayMs, deep = false }) => {
     let timerId;
 
-    watch(
+    return watch(
         watchObj,
         () => {
             if (timerId) clearTimeout(timerId);
