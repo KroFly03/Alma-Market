@@ -3,7 +3,7 @@ export default (api) => ({
         const searchParams = new URLSearchParams({ page });
         if (search) searchParams.append("code", search);
 
-        return await api.get("orders/", { searchParams }).json();
+        return await api.get("orders", { searchParams }).json();
     },
 
     getAddresses: async () => {

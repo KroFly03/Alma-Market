@@ -8,19 +8,19 @@ export default (api) => ({
         if (priceMin) searchParams.append("price_min", priceMin);
         if (priceMax) searchParams.append("price_max", priceMax);
 
-        return await api.get("goods/", { searchParams }).json();
+        return await api.get("goods", { searchParams }).json();
     },
 
     getById: async (id) => {
-        return await api.get(`goods/${id}/`).json();
+        return await api.get(`goods/${id}`).json();
     },
 
     getCategories: async () => {
-        return await api.get(`goods/cat/`).json();
+        return await api.get(`goods/categories`).json();
     },
 
     getManufacturers: async () => {
-        return await api.get(`goods/manufact/`).json();
+        return await api.get(`goods/manufacturers`).json();
     },
 
     add: async ({
@@ -49,7 +49,7 @@ export default (api) => ({
             })
         );
 
-        return await api.post("goods/create/", { body: formData }).json();
+        return await api.post("goods/create", { body: formData }).json();
     },
 
     edit: async ({
@@ -80,10 +80,10 @@ export default (api) => ({
             })
         );
 
-        return await api.patch(`goods/${id}/update/`, { body: formData }).json();
+        return await api.patch(`goods/${id}/update`, { body: formData }).json();
     },
 
     getAllCharacteristics: async () => {
-        return await api.get("goods/chars/").json();
+        return await api.get("goods/characteristics").json();
     },
 });

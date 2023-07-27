@@ -5,7 +5,7 @@ import { api } from "@/api/api.js";
 import { useAuthStore } from "@/stores/authStore.js";
 
 export const useCartStore = defineStore("cart", () => {
-    const noAuthCartItems = useLocalStorage("cart", []);
+    const noAuthCartItems = useLocalStorage("cart", [], true);
     const authCartItems = ref([]);
     const updatingGoodsItemId = ref(null);
 

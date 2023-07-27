@@ -74,7 +74,7 @@ const onAddToCart = async (goodsItem) => {
 
     &__title {
         @apply my-3 
-        line-clamp-4 
+        line-clamp-2 
         h-14
         text-lg font-medium 
         transition-colors hover:text-primary 
