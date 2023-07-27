@@ -7,6 +7,8 @@ from users.models import User
 
 class Address(models.Model):
     name = models.CharField(verbose_name='Название', max_length=150, unique=True)
+    longitude = models.FloatField(verbose_name='Долгота')
+    latitude = models.FloatField(verbose_name='Широта')
 
     def __str__(self):
         return self.name

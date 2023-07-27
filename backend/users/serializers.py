@@ -3,11 +3,22 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from goods.models import Item
 from users.models import Basket
 
 USER_MODEL = get_user_model()
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        user = USER_MODEL.objects.get(email=attrs.get('email', None))
+
+        if not user.is_active:
+            raise ValidationError({'user': ['Нужно подтвердить пользователя через электронную почту.']})
+
+        return super().validate(attrs)
 
 
 class UserSerializer(serializers.ModelSerializer):
