@@ -18,13 +18,15 @@ class AddressListView(ListAPIView):
 
 
 class OrderListView(ListAPIView):
-    queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
     pagination_class = OrderPagination
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     ordering = ['-created']
     search_fields = ['code']
+
+    def get_queryset(self):
+        return Order.objects.all()
 
 
 class OrderDetailView(RetrieveAPIView):
@@ -57,4 +59,4 @@ class UserOrderListView(OrderListView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Order.objects.filter(user__pk=self.request.user)
+        return Order.objects.filter(user=self.request.user)

@@ -115,9 +115,7 @@ paths:
           in: query
           description: Item sub category
           schema:
-            type: array
-            items:
-              type: integer
+            type: integer
         - name: price_min
           in: query
           description: Item minimum price
@@ -173,22 +171,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DeleteItem"
-  /goods/pdf:
-    post:
-      summary: Create pdf file of selected items in basket
-      tags:
-        - goods
-      requestBody:
-        required: true
-        content:
-          application/pdf:
-            schema:
-                $ref: "#/components/schemas/PDFItems"
-      responses:
-        '201':
-          description: Succesful response
-          content:
-            application/pdf: {}
   /goods/create:
     post:
       summary: Create item
@@ -401,6 +383,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+  /users/orders:
+      get:
+        summary: Get list of user orders
+        tags:
+          - users
+        parameters:
+        - name: search
+          in: query
+          description: Order code
+          schema:
+            type: string
+        responses:
+          '200':
+            description: Succesful response
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Orders"
   /users/activation:
     post:
       summary: Send activation message to user email
@@ -797,33 +797,6 @@ components:
           type: integer
           example: 1
           nullable: false
-    PDFItem:
-      type: object
-      required:
-        - id
-        - name
-        - price
-        - amount
-      properties:
-        id:
-          type: integer
-          example: 1
-          nullable: false
-        name:
-          type: string
-          example: name
-          maximum: 100
-          uniqueItems: true
-          nullable: false
-        price:
-          type: integer
-          example: 1000
-          nullable: false
-        amount:
-          type: integer
-          example: 1
-          nullable: false
-
     Item:
       type: object
       required:
@@ -1257,10 +1230,6 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/ItemCharacteristic"
-    PDFItems:
-      type: array
-      items:
-        $ref: "#/components/schemas/PDFItem"
     Goods:
       type: object
       properties:
@@ -1333,7 +1302,5 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/ItemBasket"
-
-
 
 

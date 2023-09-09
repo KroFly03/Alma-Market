@@ -1,14 +1,16 @@
 import pytest
 
 from tests.utils import get_url
+from users.models import Basket
 
 pytest_plugins = 'tests.factories'
 
 auth_url = get_url('auth:login')
 
+
 @pytest.fixture()
 @pytest.mark.django_db
-def login_user(client, django_user_model):
+def login_user(client, django_user_model, item):
     email = 'user_email'
     password = 'test_password'
     role = 'user'
@@ -17,6 +19,8 @@ def login_user(client, django_user_model):
     test_user = django_user_model.objects.create(email=email, password=password, role=role, phone=phone)
     test_user.is_active = True
     test_user.save()
+
+    Basket.objects.create(user=test_user, item=item, amount=1)
 
     response = client.post(auth_url, data={"email": test_user.email, "password": password})
 

@@ -1,20 +1,16 @@
 import json
-from collections import OrderedDict
-from types import NoneType
+
 import pytest
 from rest_framework import status
 
-from goods.models import Characteristic
-from orders.models import Order
 from tests.utils import get_url
-from users.models import Basket
 
 
 @pytest.mark.django_db()
-class TestCreateCreateView:
+class TestUserCreateView:
     base_url = 'users:users-list'
 
-    def test_return_correct_data_keys(self, client):
+    def test_correct_return_data_keys(self, client):
         data = {
             'email': 'test@mail.ru',
             'last_name': 'test',
@@ -27,11 +23,9 @@ class TestCreateCreateView:
         response = client.post(
             get_url(self.base_url), data=json.dumps(data), content_type='application/json')
 
-        data = response.data
+        assert list(response.data.keys()) == ['id', 'email', 'first_name', 'last_name', 'phone']
 
-        assert list(data.keys()) == ['id', 'email', 'first_name', 'last_name', 'phone']
-
-    def test_correct_status_code(self, client):
+    def test_correct_return_status_code(self, client):
         data = {
             'email': 'test@mail.ru',
             'last_name': 'test',
@@ -61,7 +55,7 @@ class TestCreateCreateView:
 
         assert [type(elem) for elem in response.data.values()] == [int, str, str, str, str]
 
-    def test_correct_validation_require_field(self, client):
+    def test_correct_require_field_validation(self, client):
         response = client.post(
             get_url(self.base_url), data={}, content_type='application/json')
 
@@ -87,7 +81,7 @@ class TestCreateCreateView:
         response = client.post(
             get_url(self.base_url), data=json.dumps(data), content_type='application/json')
 
-        assert response.json().get('phone') == ['Номер телефона должен быть в формате: "+79991234567".']
+        assert response.data.get('phone') == ['Номер телефона должен быть в формате: "+79991234567".']
 
         data = {
             'email': 'test@mail.ru',
@@ -101,7 +95,7 @@ class TestCreateCreateView:
         response = client.post(
             get_url(self.base_url), data=json.dumps(data), content_type='application/json')
 
-        assert response.json().get('password') == ['Разные пароли.']
+        assert response.data.get('password') == ['Разные пароли.']
 
         data = {
             'email': 'test',
@@ -114,9 +108,9 @@ class TestCreateCreateView:
 
         response = client.post(
             get_url(self.base_url), data=json.dumps(data), content_type='application/json')
-        print(response.data)
-        assert response.json().get('email') == ['Введите правильный адрес электронной почты.']
-        assert response.json().get('password') == [
+
+        assert response.data.get('email') == ['Введите правильный адрес электронной почты.']
+        assert response.data.get('password') == [
             'Введённый пароль слишком короткий. Он должен содержать как минимум 8 символов.',
             'Введённый пароль слишком широко распространён.']
 
@@ -132,7 +126,7 @@ class TestCreateCreateView:
         response = client.post(
             get_url(self.base_url), data=json.dumps(data), content_type='application/json')
 
-        assert response.json().get('email') == ['Пользователь с таким email уже существует.']
+        assert response.data.get('email') == ['Пользователь с таким email уже существует.']
 
     def test_correct_create(self, client):
         data = {

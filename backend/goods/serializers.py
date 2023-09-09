@@ -1,13 +1,6 @@
 import json
-import os
-from io import BytesIO
 
-from xhtml2pdf import pisa
-from django.http import HttpResponse
-from django.template.loader import get_template
-from django.conf import settings
 from django.db import IntegrityError, transaction
-from django.http import QueryDict
 from rest_framework import serializers
 
 from goods.models import ItemCharacteristic, Item, Characteristic, Category, Manufacturer, SubCategory
@@ -96,6 +89,13 @@ class ItemBaseSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('id', 'is_active',)
 
+    def is_valid(self, *, raise_exception=False):
+        image = self.initial_data.pop('image', [])
+        self.initial_data = self.initial_data.pop('json', [])
+        self.initial_data['image'] = json.dumps(image)
+        print(self.initial_data)
+        return super().is_valid(raise_exception=raise_exception)
+
     def save_characteristics(self, item, characteristics):
         try:
             for characteristic in characteristics:
@@ -160,36 +160,3 @@ class ItemDeleteSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
-
-
-class ItemPDFSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(validators=[])
-
-    class Meta:
-        model = Item
-        fields = ('id', 'name', 'price', 'amount')
-
-    def pdf(self, goods):
-        template_path = 'pdf.html'
-
-        context = {
-            'goods': goods,
-            'total_sum': sum(map(lambda item: item['price'] * item['amount'], goods)),
-            'font': os.path.join(settings.BASE_DIR, 'goods', 'templates', 'fonts', 'FreeSans.ttf')
-        }
-
-        template = get_template(template_path)
-
-        html = template.render(context)
-
-        result = BytesIO()
-
-        pdf = pisa.pisaDocument(BytesIO(html.encode('utf-8')), result)
-
-        if pdf.err:
-            raise ValueError(f"PDF upload error: {pdf.err}")
-
-        response = HttpResponse(result.getvalue(), content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename=selected_goods'
-
-        return response

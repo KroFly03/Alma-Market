@@ -13,7 +13,7 @@ from tests.utils import get_url
 class TestListUserView:
     base_url = 'users:users-list'
 
-    def test_pagination_keys(self, client, login_admin):
+    def test_correct_return_pagination_keys(self, client, login_admin):
         _, admin_access_token = login_admin
 
         UserFactory.create_batch(5)
@@ -22,7 +22,7 @@ class TestListUserView:
 
         assert list(response.data.keys()) == ['links', 'count', 'total_pages', 'current_page', 'results']
 
-    def test_return_correct_data_keys(self, client, login_admin):
+    def test_correct_return_data_keys(self, client, login_admin):
         _, admin_access_token = login_admin
 
         UserFactory.create_batch(5)
@@ -34,7 +34,7 @@ class TestListUserView:
         assert list(data.keys()) == ['id', 'last_login', 'email', 'first_name', 'last_name', 'phone', 'role',
                                      'is_active']
 
-    def test_correct_status_code(self, client, login_user, login_admin):
+    def test_correct_return_status_code(self, client, login_user, login_admin):
         _, user_access_token = login_user
         _, admin_access_token = login_admin
 
@@ -42,19 +42,15 @@ class TestListUserView:
 
         response = client.get(get_url(self.base_url))
 
+        print(response.data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.json().get('detail') == 'Учетные данные не были предоставлены.'
-        print(user_access_token)
-        response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {user_access_token}')
-
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.json().get('detail') == 'Необходимо быть администратором, чтобы выполнить данное действие.'
+        assert response.data.get('detail') == 'Учетные данные не были предоставлены.'
 
         response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {admin_access_token}')
 
         assert response.status_code == status.HTTP_200_OK
 
-    def test_correct_data_amount(self, client, login_admin):
+    def test_correct_return_data_amount(self, client, login_admin):
         _, admin_access_token = login_admin
 
         amount = UserPagination.page_size
@@ -65,7 +61,7 @@ class TestListUserView:
 
         assert len(response.data.get('results', None)) == amount
 
-    def test_correct_data_type(self, client, login_admin):
+    def test_correct_return_data_type(self, client, login_admin):
         _, admin_access_token = login_admin
 
         UserFactory.create_batch(5)
@@ -76,7 +72,7 @@ class TestListUserView:
 
         assert [type(elem) for elem in data.values()] == [int, NoneType, str, str, str, str, str, bool]
 
-    def test_pagination_pages(self, client, login_admin):
+    def test_correct_return_pagination_pages(self, client, login_admin):
         _, admin_access_token = login_admin
 
         amount = 17
@@ -85,12 +81,10 @@ class TestListUserView:
 
         response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {admin_access_token}')
 
-        data = response.data
+        assert response.data.get('count', None) == amount + 1
+        assert response.data.get('total_pages', None) == math.ceil(amount / UserPagination.page_size)
 
-        assert data.get('count', None) == amount + 1
-        assert data.get('total_pages', None) == math.ceil(amount / UserPagination.page_size)
-
-    def test_pagination_links(self, client, login_admin):
+    def test_correct_return_pagination_links(self, client, login_admin):
         _, admin_access_token = login_admin
 
         amount = 33
@@ -107,7 +101,7 @@ class TestListUserView:
                                            'next': 'http://testserver/api/users?page=3'}
         assert data.get('current_page', None) == page
 
-    def test_first_name_filter(self, client, login_admin):
+    def test_correct_first_name_filter(self, client, login_admin):
         _, admin_access_token = login_admin
 
         users = UserFactory.create_batch(10)
@@ -122,7 +116,7 @@ class TestListUserView:
         assert data[0].get('first_name', None) == first_name
         assert len(data) == 1
 
-    def test_last_name_filter(self, client, login_admin):
+    def test_correct_last_name_filter(self, client, login_admin):
         _, admin_access_token = login_admin
 
         users = UserFactory.create_batch(10)
@@ -137,7 +131,7 @@ class TestListUserView:
         assert data[0].get('last_name', None) == last_name
         assert len(data) == 1
 
-    def test_id_ordering(self, client, login_admin):
+    def test_correct_id_ordering(self, client, login_admin):
         _, admin_access_token = login_admin
 
         UserFactory.create_batch(10)

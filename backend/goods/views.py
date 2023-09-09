@@ -5,8 +5,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from goods.filters import ItemFilter
 from goods.models import Item, Characteristic, Manufacturer, Category, SubCategory
 from goods.serializers import SubCategorySerializer, CharacteristicSerializer, CategorySerializer, \
-    ManufacturerSerializer, ItemSerializer, ItemCreateSerializer, ItemUpdateSerializer, ItemDeleteSerializer, \
-    ItemPDFSerializer
+    ManufacturerSerializer, ItemSerializer, ItemCreateSerializer, ItemUpdateSerializer, ItemDeleteSerializer
 from paginations import GoodPagination
 
 
@@ -81,12 +80,3 @@ class ItemDeleteView(generics.UpdateAPIView):
     serializer_class = ItemDeleteSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
     http_method_names = ['patch']
-
-
-class GoodPDFView(generics.CreateAPIView):
-    serializer_class = ItemPDFSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=self.request.data, many=True)
-        serializer.is_valid(raise_exception=True)
-        return self.serializer_class.pdf(serializer, serializer.validated_data)
