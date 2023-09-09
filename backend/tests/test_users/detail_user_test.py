@@ -10,7 +10,7 @@ from tests.utils import get_url
 class TestDetailUserView:
     base_url = 'users:users-me'
 
-    def test_return_correct_data_keys(self, client, login_user):
+    def test_correct_return_data_keys(self, client, login_user):
         _, user_access_token = login_user
 
         response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {user_access_token}')
@@ -20,20 +20,20 @@ class TestDetailUserView:
         assert list(data.keys()) == ['id', 'last_login', 'email', 'first_name', 'last_name', 'phone', 'role',
                                      'is_active']
 
-    def test_correct_status_code(self, client, login_user):
+    def test_correct_return_status_code(self, client, login_user):
         _, user_access_token = login_user
 
         response = client.get(get_url(self.base_url))
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.json().get('detail') == 'Учетные данные не были предоставлены.'
+        assert response.data.get('detail') == 'Учетные данные не были предоставлены.'
 
         response = client.get(get_url(self.base_url),
                               HTTP_AUTHORIZATION=f'Bearer {user_access_token}')
 
         assert response.status_code == status.HTTP_200_OK
 
-    def test_correct_data_type(self, client, login_user):
+    def test_correct_return_data_type(self, client, login_user):
         _, user_access_token = login_user
 
         response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {user_access_token}')

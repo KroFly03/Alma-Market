@@ -1,10 +1,21 @@
 version: '3.8'
 
 services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
+    depends_on:
+      client:
+        condition: service_started
+
+
   client:
     build: ./frontend
     ports:
-      - '350:350'
+      - "350:350"
     depends_on:
       api:
         condition: service_started
@@ -15,12 +26,9 @@ services:
       - ./backend/.env
     environment:
       - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
     ports:
-      - "8080:8080"
+      - "8000:8000"
     depends_on:
-      db:
-        condition: service_healthy
       migrations:
         condition: service_completed_successfully
 
@@ -30,7 +38,6 @@ services:
       - ./backend/.env
     environment:
       - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
     depends_on:
       db:
         condition: service_healthy
@@ -39,7 +46,7 @@ services:
   db:
     image: postgres:15.2
     ports:
-      - "5656:5432"
+      - "5432:5432"
     env_file:
       - ./backend/.env
     healthcheck:

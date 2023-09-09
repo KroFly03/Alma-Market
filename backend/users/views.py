@@ -7,7 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
 from users.models import Basket
-from users.serializers import BasketSerializer, UserBasketUpdateSerializer, BasketCreateSerializer
+from users.serializers import BasketSerializer, BasketCreateSerializer
 
 
 class CustomUserViewSet(UserViewSet):
@@ -41,7 +41,7 @@ class UserBasketListView(ListAPIView):
 
 
 class UserBasketUpdateView(UpdateAPIView):
-    serializer_class = UserBasketUpdateSerializer
+    serializer_class = BasketSerializer
     http_method_names = ['patch']
     lookup_field = 'item_id'
 

@@ -1,177 +1,48 @@
-import math
 from collections import OrderedDict
-from types import NoneType
 
 import pytest
 from rest_framework import status
 
-from paginations import GoodPagination
-from tests.factories import ItemFactory
 from tests.utils import get_url
-from users.models import Basket
 
 
 @pytest.mark.django_db()
 class TestListBasketView:
     base_url = 'baskets:list_basket_item'
 
-    def test_pagination_keys(self, client, login_user, item):
+    def test_return_correct_data_keys(self, client, login_user):
         user, user_access_token = login_user
-        Basket.objects.create(user=user, item=item, amount=1)
 
         response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {user_access_token}')
 
-        assert list(response.data[0].keys()) == ['item', 'amount', 'total_pages', 'current_page', 'results']
+        basket_data = response.data[0]
+        item_data = basket_data.get('item', None)
 
-    def test_return_correct_data_keys(self, client):
-        ItemFactory.create_batch(5)
+        assert list(basket_data.keys()) == ['item', 'amount']
+        assert len(basket_data.keys()) == 2
 
-        response = client.get(get_url(self.base_url))
+        assert list(item_data.keys()) == ['id', 'category', 'manufacturer', 'name', 'price', 'image',
+                                          'is_active']
+        assert len(item_data.keys()) == 7
 
-        data = response.data.get('results', None)[0]
-
-        assert list(data.keys()) == ['id', 'characteristic', 'category', 'manufacturer', 'name', 'description',
-                                     'price', 'amount', 'image', 'is_active']
-        assert list(data.get('manufacturer', None).keys()) == ['id', 'total_goods', 'name']
-        assert list(data.get('category', None).keys()) == ['id', 'total_goods', 'subcategory', 'name']
-        assert list(data.get('category', None).get('subcategory', None)[0].keys()) == ['id', 'name', 'image']
-        assert list(data.get('characteristic', None)[0].keys()) == ['id', 'name', 'value']
-
-    def test_correct_status_code(self, client):
-        ItemFactory.create_batch(5)
+    def test_correct_return_status_code(self, client, login_user):
+        _, user_access_token = login_user
 
         response = client.get(get_url(self.base_url))
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+        response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {user_access_token}')
 
         assert response.status_code == status.HTTP_200_OK
 
-    def test_correct_data_amount(self, client):
-        amount = 15
+    def test_correct_return_data_type(self, client, login_user):
+        user, user_access_token = login_user
 
-        ItemFactory.create_batch(15)
+        response = client.get(get_url(self.base_url), HTTP_AUTHORIZATION=f'Bearer {user_access_token}')
 
-        response = client.get(get_url(self.base_url))
+        basket_data = response.data[0]
+        item_data = basket_data.get('item', None)
 
-        assert len(response.data.get('results', None)) == amount
-
-    def test_correct_data_type(self, client):
-        ItemFactory.create_batch(5)
-
-        response = client.get(get_url(self.base_url))
-
-        data = response.data.get('results', None)[0]
-
-        assert [type(elem) for elem in data.values()] == [int, list, OrderedDict, OrderedDict, str, str, int, int,
-                                                          str, bool]
-
-    def test_pagination_pages(self, client):
-        amount = 46
-
-        ItemFactory.create_batch(amount)
-
-        response = client.get(get_url(self.base_url))
-
-        data = response.data
-
-        assert data.get('count', None) == amount
-        assert data.get('total_pages', None) == math.ceil(amount / GoodPagination.page_size)
-
-    def test_pagination_links(self, client):
-        amount = 46
-        page = 2
-
-        ItemFactory.create_batch(amount)
-
-        response = client.get(get_url(self.base_url, page=page))
-
-        data = response.data
-
-        assert data.get('links', None) == {'previous': 'http://testserver/api/goods?page=1',
-                                           'next': 'http://testserver/api/goods?page=3'}
-        assert data.get('current_page', None) == page
-
-    def test_category_filter(self, client):
-        items = ItemFactory.create_batch(10)
-
-        category_id = items[0].category.id
-
-        response = client.get(get_url(self.base_url, category=category_id))
-
-        data = response.data.get('results', None)
-
-        assert data[0].get('category', None).get('id', None) == category_id
-        assert len(data) == 1
-
-    def test_manufacturer_filter(self, client):
-        items = ItemFactory.create_batch(10)
-
-        manufacturer_id = items[0].manufacturer.id
-
-        response = client.get(get_url(self.base_url, manufacturer=manufacturer_id))
-
-        data = response.data.get('results', None)
-
-        assert data[0].get('manufacturer', None).get('id', None) == manufacturer_id
-        assert len(data) == 1
-
-    def test_price_filter(self, client):
-        price_max = 500
-        price_min = 1500
-
-        ItemFactory.create_batch(10)
-
-        response = client.get(get_url(self.base_url, price_min=price_min))
-
-        data = response.data.get('results', None)
-
-        assert data == []
-
-        response = client.get(get_url(self.base_url, price_max=price_max))
-
-        data = response.data.get('results', None)
-
-        assert data == []
-
-        response = client.get(get_url(self.base_url, price_min=price_max))
-
-        data = response.data.get('results', None)
-
-        assert data != []
-
-        response = client.get(get_url(self.base_url, price_max=price_min))
-
-        data = response.data.get('results', None)
-
-        assert data != []
-
-    def test_name_filter(self, client):
-        items = ItemFactory.create_batch(10)
-
-        name = items[0].name
-
-        response = client.get(get_url(self.base_url, search=name))
-
-        data = response.data.get('results', None)
-
-        assert data[0].get('name', None) == name
-        assert len(data) == 1
-
-    def test_id_ordering(self, client):
-        ItemFactory.create_batch(10)
-
-        response = client.get(get_url(self.base_url))
-
-        data = response.data.get('results', None)
-
-        assert data[0].get('id', None) > data[::-1][0].get('id', None)
-
-    def test_sub_category_filter(self, client):
-        items = ItemFactory.create_batch(10)
-
-        sub_category = [sub_cat.id for sub_cat in items[0].category.subcategory.all()]
-
-        response = client.get(get_url(self.base_url, sub_category=sub_category))
-
-        data = response.data.get('results', None)
-
-        assert data[0].get('category', None).get('subcategory', None)[0].get('id', None) in sub_category
-        assert len(data) == 1
+        assert [type(elem) for elem in basket_data.values()] == [OrderedDict, int]
+        assert [type(elem) for elem in item_data.values()] == [int, str, str, str, int, str, bool]

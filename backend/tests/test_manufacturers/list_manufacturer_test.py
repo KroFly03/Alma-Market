@@ -9,21 +9,21 @@ from tests.utils import get_url
 class TestListManufacturerView:
     base_url = 'goods:list_manufacturer'
     
-    def test_return_correct_data_keys(self, client):
+    def test__correct_return_data_keys(self, client):
         ManufacturerFactory.create_batch(5)
 
         response = client.get(get_url(self.base_url))
 
         assert list(response.data[0].keys()) == ['id', 'total_goods', 'name']
 
-    def test_correct_status_code(self, client):
+    def test_correct_return_status_code(self, client):
         ManufacturerFactory.create_batch(5)
 
         response = client.get(get_url(self.base_url))
 
         assert response.status_code == status.HTTP_200_OK
 
-    def test_correct_data_amount(self, client):
+    def test_correct_return_data_amount(self, client):
         amount = 20
 
         ManufacturerFactory.create_batch(20)
@@ -32,7 +32,7 @@ class TestListManufacturerView:
 
         assert len(response.data) == amount
 
-    def test_correct_data_type(self, client):
+    def test_correct_return_data_type(self, client):
         ManufacturerFactory.create_batch(5)
 
         response = client.get(get_url(self.base_url))

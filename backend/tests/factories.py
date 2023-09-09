@@ -75,6 +75,8 @@ class AddressFactory(factory.django.DjangoModelFactory):
         model = Address
 
     name = factory.Sequence(lambda n: f"Address {n}")
+    longitude = 0.5
+    latitude = 0.5
 
 
 @register

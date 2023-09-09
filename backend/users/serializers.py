@@ -74,14 +74,8 @@ class BasketItemSerializer(serializers.ModelSerializer):
 
 
 class BasketSerializer(serializers.ModelSerializer):
-    item = BasketItemSerializer()
+    item = BasketItemSerializer(read_only=True)
 
     class Meta:
         model = Basket
         fields = ('item', 'amount')
-
-
-class UserBasketUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Basket
-        fields = ('amount',)
